@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e1e2e;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            animation: fadeIn 1s ease-in;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            color: #ffdd57;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .cell:hover {
+            background-color: #444;
+            transform: scale(1.05);
+        }
+        .winning-cell {
+            animation: glow 1s infinite alternate;
+        }
+        .winner-symbol {
+            position: absolute;
+            font-size: 8rem;
+            color: #50fa7b;
+            animation: scaleUp 1s ease-in-out forwards;
+            z-index: 20;
+        }
+        #message {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #50fa7b;
+            animation: fadeIn 1s ease-in;
+        }
+        #reset {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #50fa7b;
+            border: none;
+            color: #000;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #reset:hover {
+            background-color: #39d353;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1e1e2e;
+            z-index: 10;
+            animation: fadeIn 1s ease-in-out;
+        }
+        #start-screen h1 {
+            color: #ffdd57;
+            font-size: 3rem;
+        }
+        #start-button {
+            padding: 10px 30px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            background-color: #50fa7b;
+            color: #1e1e2e;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #start-button:hover {
+            background-color: #39d353;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 10px #ffdd57; }
+            to { box-shadow: 0 0 20px #ffdd57; }
+        }
+        @keyframes scaleUp {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1>Welcome to Tic Tac Toe!</h1>
+        <button id="start-button">Start Game</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div id="board"></div>
+        <div id="message"></div>
+        <button id="reset">Reset Game</button>
+    </div>
+
+    <!-- Winner Symbol -->
+    <div id="winner-symbol" class="winner-symbol" style="display: none;"></div>
+
+    <!-- Audio -->
+    <audio id="win-sound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+    <audio id="draw-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+
+    <script>
+        const startScreen = document.getElementById("start-screen");
+        const startButton = document.getElementById("start-button");
+        const container = document.querySelector(".container");
+        const board = document.getElementById("board");
+        const message = document.getElementById("message");
+        const resetBtn = document.getElementById("reset");
+        const winnerSymbol = document.getElementById("winner-symbol");
+        const winSound = document.getElementById("win-sound");
+        const drawSound = document.getElementById("draw-sound");
+
+        let currentPlayer = "X";
+        let gameBoard = Array(3).fill(null).map(() => Array(3).fill(""));
+        let gameOver = false;
+
+        startButton.addEventListener("click", () => {
+            startScreen.style.display = "none";
+            container.style.display = "flex";
+            createBoard();
+        });
+
+        function createBoard() {
+            board.innerHTML = "";
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener("click", handleCellClick);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function handleCellClick(e) {
+            if (gameOver) return;
+            const cell = e.target;
+            const row = cell.dataset.row;
+            const col = cell.dataset.col;
+
+            if (gameBoard[row][col] !== "") return;
+
+            gameBoard[row][col] = currentPlayer;
+            cell.textContent = currentPlayer;
+
+            if (checkWinner(row, col)) {
+                showVictory(currentPlayer);
+                return;
+            }
+
+            if (checkDraw()) {
+                message.textContent = "It's a Draw!";
+                drawSound.play();
+                resetGame();
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+        }
+
+        function checkWinner(row, col) {
+            const player = gameBoard[row][col];
+            if (
+                gameBoard[row].every(cell => cell === player) ||
+                gameBoard.every(r => r[col] === player) ||
+                gameBoard.every((r, i) => r[i] === player) ||
+                gameBoard.every((r, i) => r[2 - i] === player)
+            ) {
+                document.querySelectorAll(".cell").forEach(cell => {
+                    if (
+                        (gameBoard[row][cell.dataset.col] === player) ||
+                        (gameBoard[cell.dataset.row][col] === player)
+                    ) {
+                        cell.classList.add("winning-cell");
+                    }
+                });
+                return true;
+            }
+            return false;
+        }
+
+        function showVictory(player) {
+            gameOver = true;
+            message.textContent = `Player ${player} Wins!`;
+            winSound.play();
+            winnerSymbol.textContent = player;
+            winnerSymbol.style.display = "block";
+            setTimeout(resetGame, 3000);
+        }
+
+        function checkDraw() {
+            return gameBoard.flat().every(cell => cell !== "");
+        }
+
+        function resetGame() {
+            gameBoard = Array(3).fill(null).map(() => Array(3).fill(""));
+            winnerSymbol.style.display = "none";
+            message.textContent = "";
+            gameOver = false;
+            currentPlayer = "X";
+            createBoard();
+        }
+    </script>
+</body>
+</html>
