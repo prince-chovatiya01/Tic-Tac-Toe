@@ -5,142 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Tic Tac Toe</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #1e1e2e;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        .container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-            animation: fadeIn 1s ease-in;
-        }
-        #board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
-            color: #ffdd57;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        .cell:hover {
-            background-color: #444;
-            transform: scale(1.05);
-        }
-        .winning-cell {
-            animation: glow 1s infinite alternate;
-        }
-        .winner-symbol {
-            position: absolute;
-            font-size: 8rem;
-            color: #50fa7b;
-            animation: scaleUp 1s ease-in-out forwards;
-            z-index: 20;
-        }
-        #message {
-            margin-top: 10px;
-            font-size: 1.2rem;
-            color: #50fa7b;
-            animation: fadeIn 1s ease-in;
-        }
-        #reset {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #50fa7b;
-            border: none;
-            color: #000;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        #reset:hover {
-            background-color: #39d353;
-        }
+        /* Existing styles remain unchanged */
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #1e1e2e; color: #fff; font-family: Arial, sans-serif; }
+        .container { display: none; flex-direction: column; align-items: center; position: relative; }
+        h1 { margin-bottom: 20px; font-size: 2.5rem; }
+        #board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; margin-bottom: 20px; }
+        .cell { background-color: #333; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; color: #ffdd57; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .cell:hover { background-color: #444; transform: scale(1.05); }
+        .winning-cell { animation: glow 1s infinite alternate; }
+        .winner-symbol { position: absolute; font-size: 10rem; color: #50fa7b; animation: scaleUp 1s ease-in-out forwards; z-index: 20; }
+        #message { font-size: 1.5rem; margin-top: 20px; }
+        #reset, #start-button { padding: 10px 20px; background-color: #50fa7b; border: none; color: #000; font-size: 1rem; cursor: pointer; border-radius: 5px; transition: 0.3s; align-items: center;}
+        #reset:hover, #start-button:hover { background-color: #39d353; }
+        
+        /* Scoreboard */
+        #scoreboard { display: flex; justify-content: space-between; width: 400px; margin-bottom: 15px; font-size: 1.5rem; color: #ffdd57; }
+        #scoreboard div { display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-        /* Start Screen */
-        #start-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #1e1e2e;
-            z-index: 10;
-            animation: fadeIn 1s ease-in-out;
-        }
-        #start-screen h1 {
-            color: #ffdd57;
-            font-size: 3rem;
-        }
-        #start-button {
-            padding: 10px 30px;
-            margin-top: 20px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border: none;
-            background-color: #50fa7b;
-            color: #1e1e2e;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        #start-button:hover {
-            background-color: #39d353;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 10px #ffdd57; }
-            to { box-shadow: 0 0 20px #ffdd57; }
-        }
-        @keyframes scaleUp {
-            from { transform: scale(0); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        @keyframes glow { from { box-shadow: 0 0 10px #ffdd57; } to { box-shadow: 0 0 20px #ffdd57; } }
+        @keyframes scaleUp { from { transform: scale(0); opacity: 0; } to { transform: scale(1.5); opacity: 1; } }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="start-screen">
-        <h1>Welcome to Tic Tac Toe!</h1>
-        <button id="start-button">Start Game</button>
+        <h1>Are You Ready To Play World's Deadliest Game?</h1>
+        <button id="start-button">Oh Yeah!</button>
     </div>
 
     <!-- Game Container -->
     <div class="container">
         <h1>Tic Tac Toe</h1>
+        <!-- Scoreboard -->
+        <div id="scoreboard">
+            <div>
+                <span>Player X</span>
+                <span id="score-x">0</span>
+            </div>
+            <div>
+                <span>Player O</span>
+                <span id="score-o">0</span>
+            </div>
+        </div>
+        <!-- Game Board -->
         <div id="board"></div>
         <div id="message"></div>
         <button id="reset">Reset Game</button>
@@ -150,7 +57,7 @@
     <div id="winner-symbol" class="winner-symbol" style="display: none;"></div>
 
     <!-- Audio -->
-    <audio id="win-sound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+    <audio id="win-sound" src="https://www.soundjay.com/button/sounds/button-09.mp3"></audio>
     <audio id="draw-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
 
     <script>
@@ -163,10 +70,13 @@
         const winnerSymbol = document.getElementById("winner-symbol");
         const winSound = document.getElementById("win-sound");
         const drawSound = document.getElementById("draw-sound");
+        const scoreX = document.getElementById("score-x");
+        const scoreO = document.getElementById("score-o");
 
         let currentPlayer = "X";
         let gameBoard = Array(3).fill(null).map(() => Array(3).fill(""));
         let gameOver = false;
+        let scores = { X: 0, O: 0 };
 
         startButton.addEventListener("click", () => {
             startScreen.style.display = "none";
@@ -221,26 +131,19 @@
                 gameBoard.every(r => r[col] === player) ||
                 gameBoard.every((r, i) => r[i] === player) ||
                 gameBoard.every((r, i) => r[2 - i] === player)
-            ) {
-                document.querySelectorAll(".cell").forEach(cell => {
-                    if (
-                        (gameBoard[row][cell.dataset.col] === player) ||
-                        (gameBoard[cell.dataset.row][col] === player)
-                    ) {
-                        cell.classList.add("winning-cell");
-                    }
-                });
-                return true;
-            }
+            ) return true;
+
             return false;
         }
 
         function showVictory(player) {
             gameOver = true;
-            message.textContent = `Player ${player} Wins!`;
-            winSound.play();
+            scores[player]++;
+            scoreX.textContent = scores.X;
+            scoreO.textContent = scores.O;
             winnerSymbol.textContent = player;
             winnerSymbol.style.display = "block";
+            winSound.play();
             setTimeout(resetGame, 3000);
         }
 
